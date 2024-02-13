@@ -1,0 +1,702 @@
+op_mov
+mov Rm, Rn
+0110nnnnmmmm0011
+op_movi
+mov #imm, Rn
+1110nnnniiiiiiii
+op_mova
+mova @(disp,PC), R0
+11000111dddddddd
+op_movwi
+mov.w @(disp,PC), Rn
+1001nnnndddddddd
+op_movli
+mov.l @(disp,PC), Rn
+1101nnnndddddddd
+op_movbl
+mov.b @Rm, Rn
+0110nnnnmmmm0000
+op_movwl
+mov.w @Rm, Rn
+0110nnnnmmmm0001
+op_movll
+mov.l @Rm, Rn
+0110nnnnmmmm0010
+op_movbs
+mov.b Rm, @Rn
+0010nnnnmmmm0000
+op_movws
+mov.w Rm, @Rn
+0010nnnnmmmm0001
+op_movls
+mov.l Rm, @Rn
+0010nnnnmmmm0010
+op_movbp
+mov.b @Rm+, Rn
+0110nnnnmmmm0100
+op_movwp
+mov.w @Rm+, Rn
+0110nnnnmmmm0101
+op_movlp
+mov.l @Rm+, Rn
+0110nnnnmmmm0110
+op_movbm
+mov.b Rm, @-Rn
+0010nnnnmmmm0100
+op_movwm
+mov.w Rm, @-Rn
+0010nnnnmmmm0101
+op_movlm
+mov.l Rm, @-Rn
+0010nnnnmmmm0110
+op_movbl4
+mov.b @(disp,Rm), R0
+10000100mmmmdddd
+op_movwl4
+mov.w @(disp,Rm), R0
+10000101mmmmdddd
+op_movll4
+mov.l @(disp,Rm), Rn
+0101nnnnmmmmdddd
+op_movbs4
+mov.b R0, @(disp,Rn)
+10000000nnnndddd
+op_movws4
+mov.w R0, @(disp,Rn)
+10000001nnnndddd
+op_movls4
+mov.l Rm, @(disp,Rn)
+0001nnnnmmmmdddd
+op_movbl0
+mov.b @(R0,Rm), Rn
+0000nnnnmmmm1100
+op_movwl0
+mov.w @(R0,Rm), Rn
+0000nnnnmmmm1101
+op_movll0
+mov.l @(R0,Rm), Rn
+0000nnnnmmmm1110
+op_movbs0
+mov.b Rm, @(R0,Rn)
+0000nnnnmmmm0100
+op_movws0
+mov.w Rm, @(R0,Rn)
+0000nnnnmmmm0101
+op_movls0
+mov.l Rm, @(R0,Rn)
+0000nnnnmmmm0110
+op_movblg
+mov.b @(disp,GBR), R0
+11000100dddddddd
+op_movwlg
+mov.w @(disp,GBR), R0
+11000101dddddddd
+op_movllg
+mov.l @(disp,GBR), R0
+11000110dddddddd
+op_movbsg
+mov.b R0, @(disp,GBR)
+11000000dddddddd
+op_movwsg
+mov.w R0, @(disp,GBR)
+11000001dddddddd
+op_movlsg
+mov.l R0, @(disp,GBR)
+11000010dddddddd
+op_movt
+movt Rn
+0000nnnn00101001
+op_swapb
+swap.b Rm, Rn
+0110nnnnmmmm1000
+op_swapw
+swap.w Rm, Rn
+0110nnnnmmmm1001
+op_xtrct
+xtrct Rm, Rn
+0010nnnnmmmm1101
+op_add
+add Rm, Rn
+0011nnnnmmmm1100
+op_addi
+add #imm, Rn
+0111nnnniiiiiiii
+op_addc
+addc Rm, Rn
+0011nnnnmmmm1110
+op_addv
+addv Rm, Rn
+0011nnnnmmmm1111
+op_cmpim
+cmp/eq #imm, R0
+10001000iiiiiiii
+op_cmpeq
+cmp/eq Rm, Rn
+0011nnnnmmmm0000
+op_cmphi
+cmp/hs Rm, Rn
+0011nnnnmmmm0010
+op_cmpge
+cmp/ge Rm, Rn
+0011nnnnmmmm0011
+op_cmphi
+cmp/hi Rm, Rn
+0011nnnnmmmm0110
+op_cmpgt
+cmp/gt Rm, Rn
+0011nnnnmmmm0111
+op_cmppl
+cmp/pl Rn
+0100nnnn00010101
+op_cmppz
+cmp/pz Rn
+0100nnnn00010001
+op_cmpstr
+cmp/str Rm, Rn
+0010nnnnmmmm1100
+op_div0s
+div0s Rm, Rn
+0010nnnnmmmm0111
+op_div0u
+div0u
+0000000000011001
+op_div1
+div1 Rm, Rn
+0011nnnnmmmm0100
+op_dmuls
+dmuls.l Rm, Rn
+0011nnnnmmmm1101
+op_dmulu
+dmulu.l Rm, Rn
+0011nnnnmmmm0101
+op_dt
+dt Rn
+0100nnnn00010000
+op_extsb
+exts.b Rm, Rn
+0110nnnnmmmm1110
+op_extsw
+exts.w Rm, Rn
+0110nnnnmmmm1111
+op_extub
+extu.b Rm, Rn
+0110nnnnmmmm1100
+op_extuw
+extu.w Rm, Rn
+0110nnnnmmmm1101
+op_macl
+mac.l @Rm+, @Rn+
+0000nnnnmmmm1111
+op_macw
+mac.w @Rm+, @Rn+
+0100nnnnmmmm1111
+op_mull
+mul.l Rm, Rn
+0000nnnnmmmm0111
+op_muls
+muls.w Rm, Rn
+0010nnnnmmmm1111
+op_mulu
+mulu.w Rm, Rn
+0010nnnnmmmm1110
+op_neg
+neg Rm, Rn
+0110nnnnmmmm1011
+op_negc
+negc Rm, Rn
+0110nnnnmmmm1010
+op_sub
+sub Rm, Rn
+0011nnnnmmmm1000
+op_subc
+subc Rm, Rn
+0011nnnnmmmm1010
+op_subv
+subv Rm, Rn
+0011nnnnmmmm1011
+op_and
+and Rm, Rn
+0010nnnnmmmm1001
+op_andi
+and #imm, R0
+11001001iiiiiiii
+op_andm
+and.b #imm, @(R0,GBR)
+11001101iiiiiiii
+op_not
+not Rm, Rn
+0110nnnnmmmm0111
+op_or
+or Rm, Rn
+0010nnnnmmmm1011
+op_ori
+or #imm, R0
+11001011iiiiiiii
+op_orm
+or.b #imm, @(R0,GBR)
+11001111iiiiiiii
+op_tas
+tas.b @Rn
+0100nnnn00011011
+op_tst
+tst Rm, Rn
+0010nnnnmmmm1000
+op_tsti
+tst #imm, R0
+11001000iiiiiiii
+op_tstm
+tst.b #imm, @(R0,GBR)
+11001100iiiiiiii
+op_xor
+xor Rm, Rn
+0010nnnnmmmm1010
+op_xori
+xor #imm, R0
+11001010iiiiiiii
+op_xorm
+xor.b #imm, @(R0,GBR)
+11001110iiiiiiii
+op_rotcl
+rotcl Rn
+0100nnnn00100100
+op_rotcr
+rotcr Rn
+0100nnnn00100101
+op_rotl
+rotl Rn
+0100nnnn00000100
+op_rotr
+rotr Rn
+0100nnnn00000101
+op_shad
+shad Rm, Rn
+0100nnnnmmmm1100
+op_shal
+shal Rn
+0100nnnn00100000
+op_shar
+shar Rn
+0100nnnn00100001
+op_shld
+shld Rm, Rn
+0100nnnnmmmm1101
+op_shll
+shll Rn
+0100nnnn00000000
+op_shll2
+shll2 Rn
+0100nnnn00001000
+op_shll8
+shll8 Rn
+0100nnnn00011000
+op_shll16
+shll16 Rn
+0100nnnn00101000
+op_shlr
+shlr Rn
+0100nnnn00000001
+op_shlr2
+shlr2 Rn
+0100nnnn00001001
+op_shlr8
+shlr8 Rn
+0100nnnn00011001
+op_shlr16
+shlr16 Rn
+0100nnnn00101001
+op_bf
+bf label
+10001011dddddddd
+op_bfs
+bf/s label
+10001111dddddddd
+op_bt
+bt label
+10001001dddddddd
+op_bts
+bt/s label
+10001101dddddddd
+op_bra
+bra label
+1010dddddddddddd
+op_braf
+braf Rm
+0000mmmm00100011
+op_bsr
+bsr label
+1011dddddddddddd
+op_bsrf
+bsrf Rm
+0000mmmm00000011
+op_jmp
+jmp @Rm
+0100mmmm00101011
+op_jsr
+jsr @Rm
+0100mmmm00001011
+op_rts
+rts
+0000000000001011
+op_clrmac
+clrmac
+0000000000101000
+op_clrs
+clrs
+0000000001001000
+op_clrt
+clrt
+0000000000001000
+op_ldcsr
+ldc Rm, SR
+0100mmmm00001110
+op_ldcmsr
+ldc.l @Rm+, SR
+0100mmmm00000111
+op_ldcgbr
+ldc Rm, GBR
+0100mmmm00011110
+op_ldcmgbr
+ldc.l @Rm+, GBR
+0100mmmm00010111
+op_ldcvbr
+ldc Rm, VBR
+0100mmmm00101110
+op_ldcmvbr
+ldc.l @Rm+, VBR
+0100mmmm00100111
+op_ldcssr
+ldc Rm, SSR
+0100mmmm00111110
+op_ldcmssr
+ldc.l @Rm+, SSR
+0100mmmm00110111
+op_ldcspc
+ldc Rm, SPC
+0100mmmm01001110
+op_ldcmspc
+ldc.l @Rm+, SPC
+0100mmmm01000111
+op_ldcdbr
+ldc Rm, DBR
+0100mmmm11111010
+op_ldcmdbr
+ldc.l @Rm+, DBR
+0100mmmm11110110
+op_ldcrn_bank
+ldc Rm, Rn_BANK
+0100mmmm1nnn1110
+op_ldcmrn_bank
+ldc.l @Rm+, Rn_BANK
+0100mmmm1nnn0111
+op_ldsmach
+lds Rm, MACH
+0100mmmm00001010
+op_ldsmmach
+lds.l @Rm+, MACH
+0100mmmm00000110
+op_ldsmacl
+lds Rm, MACL
+0100mmmm00011010
+op_ldsmmacl
+lds.l @Rm+, MACL
+0100mmmm00010110
+op_ldspr
+lds Rm, PR
+0100mmmm00101010
+op_ldsmpr
+lds.l @Rm+, PR
+0100mmmm00100110
+op_ldtlb
+ldtlb
+0000000000111000
+op_movcal
+movca.l R0, @Rn
+0000nnnn11000011
+op_nop
+nop
+0000000000001001
+op_ocbi
+ocbi @Rn
+0000nnnn10010011
+op_ocbp
+ocbp @Rn
+0000nnnn10100011
+op_ocbwb
+ocbwb @Rn
+0000nnnn10110011
+op_pref
+pref @Rn
+0000nnnn10000011
+op_rte
+rte
+0000000000101011
+op_sets
+sets
+0000000001011000
+op_sett
+sett
+0000000000011000
+op_sleep
+sleep
+0000000000011011
+op_stcsr
+stc SR, Rn
+0000nnnn00000010
+op_stcmsr
+stc.l SR, @-Rn
+0100nnnn00000011
+op_stcgbr
+stc GBR, Rn
+0000nnnn00010010
+op_stcmgbr
+stc.l GBR, @-Rn
+0100nnnn00010011
+op_stcvbr
+stc VBR, Rn
+0000nnnn00100010
+op_stcmvbr
+stc.l VBR, @-Rn
+0100nnnn00100011
+op_stcsgr
+stc SGR, Rn
+0000nnnn00111010
+op_stcmsgr
+stc.l SGR, @-Rn
+0100nnnn00110010
+op_stcssr
+stc SSR, Rn
+0000nnnn00110010
+op_stcmssr
+stc.l SSR, @-Rn
+0100nnnn00110011
+op_stcspc
+stc SPC, Rn
+0000nnnn01000010
+op_stcmspc
+stc.l SPC, @-Rn
+0100nnnn01000011
+op_stcdbr
+stc DBR, Rn
+0000nnnn11111010
+op_stcmdbr
+stc.l DBR, @-Rn
+0100nnnn11110010
+op_stcrm_bank
+stc Rm_BANK, Rn
+0000nnnn1mmm0010
+op_stcmrm_bank
+stc.l Rm_BANK, @-Rn
+0100nnnn1mmm0011
+op_stsmach
+sts MACH, Rn
+0000nnnn00001010
+op_stsmmach
+sts.l MACH, @-Rn
+0100nnnn00000010
+op_stsmacl
+sts MACL, Rn
+0000nnnn00011010
+op_stsmmacl
+sts.l MACL, @-Rn
+0100nnnn00010010
+op_stspr
+sts PR, Rn
+0000nnnn00101010
+op_stsmpr
+sts.l PR, @-Rn
+0100nnnn00100010
+op_trapa
+trapa #imm
+11000011iiiiiiii
+op_fmov
+fmov FRm, FRn
+1111nnnnmmmm1100
+op_fmov_load
+fmov.s @Rm, FRn
+1111nnnnmmmm1000
+op_fmov_store
+fmov.s FRm, @Rn
+1111nnnnmmmm1010
+op_fmov_restore
+fmov.s @Rm+, FRn
+1111nnnnmmmm1001
+op_fmov_save
+fmov.s FRm, @-Rn
+1111nnnnmmmm1011
+op_fmov_index_load
+fmov.s @(R0,Rm), FRn
+1111nnnnmmmm0110
+op_fmov_index_store
+fmov.s FRm, @(R0,Rn)
+1111nnnnmmmm0111
+op_fmov_dr
+fmov DRm, DRn
+1111nnn0mmm01100
+op_fmov_drxd
+fmov DRm, XDn
+1111nnn1mmm01100
+op_fmov_xddr
+fmov XDm, DRn
+1111nnn0mmm11100
+op_fmov_xdxd
+fmov XDm, XDn
+1111nnn1mmm11100
+op_fmov_load_dr
+fmov.d @Rm, DRn
+1111nnn0mmmm1000
+op_fmov_load_xd
+fmov.d @Rm, XDn
+1111nnn1mmmm1000
+op_fmov_store_dr
+fmov.d DRm, @Rn
+1111nnnnmmm01010
+op_fmov_store_xd
+fmov.d XDm, @Rn
+1111nnnnmmm11010
+op_fmov_restore_dr
+fmov.d @Rm+, DRn
+1111nnn0mmmm1001
+op_fmov_restore_xd
+fmov.d @Rm+, XDn
+1111nnn1mmmm1001
+op_fmov_save_dr
+fmov.d DRm, @-Rn
+1111nnnnmmm01011
+op_fmov_save_xd
+fmov.d XDm, @-Rn
+1111nnnnmmm11011
+op_fmov_index_load_dr
+fmov.d @(R0,Rm), DRn
+1111nnn0mmmm0110
+op_fmov_index_load_xd
+fmov.d @(R0,Rm), XDn
+1111nnn1mmmm0110
+op_fmov_index_store_dr
+fmov.d DRm, @(R0,Rn)
+1111nnnnmmm00111
+op_fmov_index_store_xd
+fmov.d XDm, @(R0,Rn)
+1111nnnnmmm10111
+op_fldi0
+fldi0 FRn
+1111nnnn10001101
+op_fldi1
+fldi1 FRn
+1111nnnn10011101
+op_flds
+flds FRm, FPUL
+1111mmmm00011101
+op_fsts
+fsts FPUL, FRn
+1111nnnn00001101
+op_fabs
+fabs FRn
+1111nnnn01011101
+op_fneg
+fneg FRn
+1111nnnn01001101
+op_fadd
+fadd FRm, FRn
+1111nnnnmmmm0000
+op_fsub
+fsub FRm, FRn
+1111nnnnmmmm0001
+op_fmul
+fmul FRm, FRn
+1111nnnnmmmm0010
+op_fmac
+fmac FR0, FRm, FRn
+1111nnnnmmmm1110
+op_fdiv
+fdiv FRm, FRn
+1111nnnnmmmm0011
+op_fsqrt
+fsqrt FRn
+1111nnnn01101101
+op_fcmp_eq
+fcmp/eq FRm, FRn
+1111nnnnmmmm0100
+op_fcmp_gt
+fcmp/gt FRm, FRn
+1111nnnnmmmm0101
+op_float_single
+float FPUL, FRn
+1111nnnn00101101
+op_ftrc_single
+ftrc FRm, FPUL
+1111mmmm00111101
+op_fipr
+fipr FVm, FVn
+1111nnmm11101101
+op_ftrv
+ftrv XMTRX, FVn
+1111nn0111111101
+op_fabs
+fabs DRn
+1111nnn001011101
+op_fneg
+fneg DRn
+1111nnn001001101
+op_fadd
+fadd DRm, DRn
+1111nnn0mmm00000
+op_fsub
+fsub DRm, DRn
+1111nnn0mmm00001
+op_fmul
+fmul DRm, DRn
+1111nnn0mmm00010
+op_fdiv
+fdiv DRm, DRn
+1111nnn0mmm00011
+op_fsqrt
+fsqrt DRn
+1111nnn001101101
+op_fcmp_eq
+fcmp/eq DRm, DRn
+1111nnn0mmm00100
+op_fcmp_gt
+fcmp/gt DRm, DRn
+1111nnn0mmm00101
+op_float_double
+float FPUL, DRn
+1111nnn000101101
+op_ftrc_double
+ftrc DRm, FPUL
+1111mmm000111101
+op_fcnvds
+fcnvds DRm, FPUL
+1111mmm010111101
+op_fcnvsd
+fcnvsd FPUL, DRn
+1111nnn010101101
+op_ldsfpscr
+lds Rm, FPSCR
+0100mmmm01101010
+op_stsfpscr
+sts FPSCR, Rn
+0000nnnn01101010
+op_ldsmfpscr
+lds.l @Rm+, FPSCR
+0100mmmm01100110
+op_stsmfpscr
+sts.l FPSCR, @-Rn
+0100nnnn01100010
+op_ldsfpul
+lds Rm, FPUL
+0100mmmm01011010
+op_stsfpul
+sts FPUL, Rn
+0000nnnn01011010
+op_ldsmfpul
+lds.l @Rm+, FPUL
+0100mmmm01010110
+op_stsmfpul
+sts.l FPUL, @-Rn
+0100nnnn01010010
+op_frchg
+frchg
+1111101111111101
+op_fschg
+fschg
+1111001111111101
