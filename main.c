@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "sh4_dis.h"
 #include "sh4.h"
 #include "bus.h"
 
@@ -23,12 +24,26 @@ int main(void) {
     // Load test program at 0x8c001000
     ram_load(bus->ram, "test.bin", 0x1000);
 
-    cpu->pc = 0x8c001000;
+    cpu->pc = 0xac001000;
 
     int counter = 16;
 
-    while (counter--)
+    sh4d_state dis_state;
+
+    dis_state.print_address = 1;
+    dis_state.print_opcode = 1;
+
+    char buf[512];
+
+    while (counter--) {
+        dis_state.pc = cpu->pc;
+
+        uint16_t opcode = cpu->bus.read16(cpu->bus.udata, cpu->pc);
+
+        printf("%s\n", sh4_disassemble(opcode, buf, &dis_state));
+    
         sh4_cycle(cpu);
+    }
 
     putchar('\n');
 

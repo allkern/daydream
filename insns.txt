@@ -133,7 +133,7 @@ cmp/eq #imm, R0
 op_cmpeq
 cmp/eq Rm, Rn
 0011nnnnmmmm0000
-op_cmphi
+op_cmphs
 cmp/hs Rm, Rn
 0011nnnnmmmm0010
 op_cmpge
@@ -589,34 +589,34 @@ flds FRm, FPUL
 op_fsts
 fsts FPUL, FRn
 1111nnnn00001101
-op_fabs
+op_fabs_fr
 fabs FRn
 1111nnnn01011101
-op_fneg
+op_fneg_fr
 fneg FRn
 1111nnnn01001101
-op_fadd
+op_fadd_fr
 fadd FRm, FRn
 1111nnnnmmmm0000
-op_fsub
+op_fsub_fr
 fsub FRm, FRn
 1111nnnnmmmm0001
-op_fmul
+op_fmul_fr
 fmul FRm, FRn
 1111nnnnmmmm0010
 op_fmac
 fmac FR0, FRm, FRn
 1111nnnnmmmm1110
-op_fdiv
+op_fdiv_fr
 fdiv FRm, FRn
 1111nnnnmmmm0011
-op_fsqrt
+op_fsqrt_fr
 fsqrt FRn
 1111nnnn01101101
-op_fcmp_eq
+op_fcmp_eq_fr
 fcmp/eq FRm, FRn
 1111nnnnmmmm0100
-op_fcmp_gt
+op_fcmp_gt_fr
 fcmp/gt FRm, FRn
 1111nnnnmmmm0101
 op_float_single
@@ -631,31 +631,31 @@ fipr FVm, FVn
 op_ftrv
 ftrv XMTRX, FVn
 1111nn0111111101
-op_fabs
+op_fabs_dr
 fabs DRn
 1111nnn001011101
-op_fneg
+op_fneg_dr
 fneg DRn
 1111nnn001001101
-op_fadd
+op_fadd_dr
 fadd DRm, DRn
 1111nnn0mmm00000
-op_fsub
+op_fsub_dr
 fsub DRm, DRn
 1111nnn0mmm00001
-op_fmul
+op_fmul_dr
 fmul DRm, DRn
 1111nnn0mmm00010
-op_fdiv
+op_fdiv_dr
 fdiv DRm, DRn
 1111nnn0mmm00011
-op_fsqrt
+op_fsqrt_dr
 fsqrt DRn
 1111nnn001101101
-op_fcmp_eq
+op_fcmp_eq_dr
 fcmp/eq DRm, DRn
 1111nnn0mmm00100
-op_fcmp_gt
+op_fcmp_gt_dr
 fcmp/gt DRm, DRn
 1111nnn0mmm00101
 op_float_double
