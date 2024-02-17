@@ -1,3 +1,6 @@
-# SH4
+# daydream
 
-Hitachi/Renesas SH-4 (SuperH) CPU emulator
+Sega Dreamcast emulator written in C
+
+## Progress
+Currently working on the SH4 core
