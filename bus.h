@@ -2,9 +2,11 @@
 #define BUS_H
 
 #include "ram.h"
+#include "holly.h"
 
 typedef struct {
     ram_state* ram;
+    holly_state* holly;
 } dc_bus_state;
 
 dc_bus_state* dc_bus_create(void);

@@ -32,6 +32,7 @@ typedef struct {
 
 typedef struct {
     sh4_bus bus;
+
     uint32_t rb[2][8];
     uint32_t r[8];
 
@@ -61,11 +62,49 @@ typedef struct {
     uint32_t macl;
     uint32_t pr;
     uint32_t vbr;
-    uint32_t pc;
+    uint32_t pc[2];
     uint32_t spc;
     uint32_t sgr;
     uint32_t dbr;
     uint32_t opcode;
+
+    union {
+        uint32_t u32;
+
+        struct {
+            unsigned int rm     : 2;
+            unsigned int flag   : 5;
+            unsigned int enable : 5;
+            unsigned int cause  : 6;
+            unsigned int dn     : 1;
+            unsigned int pr     : 1;
+            unsigned int sz     : 1;
+            unsigned int fr     : 1;
+            unsigned int res0   : 10;
+        };
+    } fpscr;
+
+    uint32_t fpul;
+
+    union {
+        union {
+            uint32_t u32;
+            float f;
+        } f[16];
+
+        union {
+            uint64_t u64;
+            double d;
+        } d[8];
+
+        struct {
+            float f[4];
+        } fv[4];
+
+        struct {
+            float f[16];
+        } xmtrx;
+    } fb[2];
 } sh4_state;
 
 sh4_state* sh4_create(void);
@@ -74,6 +113,8 @@ void sh4_cycle(sh4_state* cpu);
 void sh4_destroy(sh4_state* cpu);
 uint32_t sh4_get_reg(sh4_state* cpu, int index);
 void sh4_set_reg(sh4_state* cpu, int index, uint32_t value);
+void sh4_set_pc(sh4_state* cpu, uint32_t pc);
+void sh4_set_pc_delayed(sh4_state* cpu, uint32_t pc);
 
 void sh4_op_mov(sh4_state* cpu);
 void sh4_op_movi(sh4_state* cpu);
@@ -280,11 +321,13 @@ void sh4_op_fmul_fr(sh4_state* cpu);
 void sh4_op_fmac(sh4_state* cpu);
 void sh4_op_fdiv_fr(sh4_state* cpu);
 void sh4_op_fsqrt_fr(sh4_state* cpu);
+void sh4_op_fsrra(sh4_state* cpu);
 void sh4_op_fcmp_eq_fr(sh4_state* cpu);
 void sh4_op_fcmp_gt_fr(sh4_state* cpu);
 void sh4_op_float_single(sh4_state* cpu);
 void sh4_op_ftrc_single(sh4_state* cpu);
 void sh4_op_fipr(sh4_state* cpu);
+void sh4_op_fsca(sh4_state* cpu);
 void sh4_op_ftrv(sh4_state* cpu);
 void sh4_op_fabs_dr(sh4_state* cpu);
 void sh4_op_fneg_dr(sh4_state* cpu);

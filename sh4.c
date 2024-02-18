@@ -12,8 +12,11 @@ void sh4_init(sh4_state* cpu, sh4_bus bus) {
     memset(cpu, 0, sizeof(sh4_state));
 
     cpu->sr.u32 = 0x700000f0;
-    cpu->pc = 0xa0000000;
+    cpu->pc[0] = 0xa0000000;
+    cpu->pc[1] = 0xa0000002;
     cpu->bus = bus;
+
+    cpu->fpscr.u32 = 0x00040001;
 }
 
 #define ROTL16(v, r) ((((v) << r) | ((v) >> (16 - r))) & 0xffff)
@@ -212,6 +215,7 @@ void sh4_exec(sh4_state* cpu) {
         case ROTL16(0xf05d, 4): sh4_op_fabs_fr(cpu); return;
         case ROTL16(0xf04d, 4): sh4_op_fneg_fr(cpu); return;
         case ROTL16(0xf06d, 4): sh4_op_fsqrt_fr(cpu); return;
+        case ROTL16(0xf07d, 4): sh4_op_fsrra(cpu); return;
         case ROTL16(0xf02d, 4): sh4_op_float_single(cpu); return;
         case ROTL16(0xf03d, 4): sh4_op_ftrc_single(cpu); return;
         case ROTL16(0xf0ed, 4): sh4_op_fipr(cpu); return;
@@ -292,17 +296,23 @@ void sh4_exec(sh4_state* cpu) {
         case 0xf03d: sh4_op_ftrc_double(cpu); return;
         case 0xf0bd: sh4_op_fcnvds(cpu); return;
         case 0xf0ad: sh4_op_fcnvsd(cpu); return;
+        case 0xf0fd: sh4_op_fsca(cpu); return;
     }
+
+    printf("Unimplemented opcode %04x\n", cpu->opcode);
+
+    exit(1);
 }
 
 #undef ROTL16
 
 void sh4_cycle(sh4_state* cpu) {
-    cpu->opcode = cpu->bus.read16(cpu->bus.udata, cpu->pc);
+    cpu->opcode = cpu->bus.read16(cpu->bus.udata, cpu->pc[0]);
+
+    cpu->pc[0] = cpu->pc[1];
+    cpu->pc[1] = cpu->pc[0] + 2;
 
     sh4_exec(cpu);
-
-    cpu->pc += 2;
 }
 
 void sh4_destroy(sh4_state* cpu) {
@@ -324,4 +334,13 @@ void sh4_set_reg(sh4_state* cpu, int index, uint32_t value) {
     }
 
     cpu->r[index - 8] = value;
+}
+
+void sh4_set_pc(sh4_state* cpu, uint32_t pc) {
+    cpu->pc[0] = pc;
+    cpu->pc[1] = pc + 2;
+}
+
+void sh4_set_pc_delayed(sh4_state* cpu, uint32_t pc) {
+    cpu->pc[1] = pc;
 }
