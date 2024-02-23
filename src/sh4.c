@@ -3,10 +3,12 @@
 #include <stdio.h>
 
 #include "sh4.h"
+#include "sh4_dis.h"
 
 sh4_state* sh4_create(void) {
     return malloc(sizeof(sh4_state));
 }
+
 
 void sh4_init(sh4_state* cpu, sh4_bus bus) {
     memset(cpu, 0, sizeof(sh4_state));
@@ -319,11 +321,11 @@ void sh4_destroy(sh4_state* cpu) {
     free(cpu);
 }
 
-uint32_t sh4_get_reg(sh4_state* cpu, int index) {
+uint32_t* sh4_get_reg(sh4_state* cpu, int index) {
     if (index < 8)
-        return cpu->rb[cpu->sr.rb && cpu->sr.md][index];
+        return &cpu->rb[cpu->sr.rb && cpu->sr.md][index];
 
-    return cpu->r[index - 8];
+    return &cpu->r[index - 8];
 }
 
 void sh4_set_reg(sh4_state* cpu, int index, uint32_t value) {

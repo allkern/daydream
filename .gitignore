@@ -6,4 +6,5 @@ sdl2-win64/
 *.exe
 *.bin
 *.cpp
+*.pdf
 *.s

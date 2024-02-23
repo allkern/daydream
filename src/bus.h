@@ -1,12 +1,18 @@
 #ifndef BUS_H
 #define BUS_H
 
+#include "cache.h"
+#include "p4.h"
 #include "ram.h"
-#include "holly.h"
+#include "vram.h"
+#include "holly/pvr2.h"
 
 typedef struct {
+    cache_state* cache;
+    p4_state* p4;
     ram_state* ram;
-    holly_state* holly;
+    vram_state* vram;
+    pvr2_state* pvr2;
 } dc_bus_state;
 
 dc_bus_state* dc_bus_create(void);

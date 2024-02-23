@@ -111,7 +111,7 @@ sh4_state* sh4_create(void);
 void sh4_init(sh4_state* cpu, sh4_bus bus);
 void sh4_cycle(sh4_state* cpu);
 void sh4_destroy(sh4_state* cpu);
-uint32_t sh4_get_reg(sh4_state* cpu, int index);
+uint32_t* sh4_get_reg(sh4_state* cpu, int index);
 void sh4_set_reg(sh4_state* cpu, int index, uint32_t value);
 void sh4_set_pc(sh4_state* cpu, uint32_t pc);
 void sh4_set_pc_delayed(sh4_state* cpu, uint32_t pc);

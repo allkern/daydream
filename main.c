@@ -14,7 +14,7 @@ int main(int argc, const char* argv[]) {
     SDL_Window* window = SDL_CreateWindow(
         "daydream",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        640, 480,
+        1280, 960,
         SDL_WINDOW_OPENGL
     );
 
@@ -26,7 +26,7 @@ int main(int argc, const char* argv[]) {
 
     SDL_Texture* texture = SDL_CreateTexture(
         renderer,
-        SDL_PIXELFORMAT_RGB555,
+        SDL_PIXELFORMAT_ARGB8888,
         SDL_TEXTUREACCESS_STREAMING,
         640, 480
     );
@@ -46,35 +46,40 @@ int main(int argc, const char* argv[]) {
 
     sh4_state* cpu = sh4_create();
     sh4_init(cpu, cpu_bus);
-    sh4_set_pc(cpu, 0xac001000);
 
-    // Load test program at 0x8c001000
-    ram_load(bus->ram, argv[1], 0x1000);
+    int len = strlen(argv[1]);
 
-    // int counter = 32;
+    if (!strnicmp(argv[1], "-g", len)) {
+        printf("Loading \'%s\' at 0x8c008000...\n", argv[2]);
 
-    // sh4d_state dis_state;
+        // Load IP.BIN at 0x8c008000
+        ram_load(bus->ram, argv[2], 0x8000);
 
-    // dis_state.print_address = 1;
-    // dis_state.print_opcode = 1;
+        // Load 1ST_READ.BIN at 0x8c010000
+        ram_load(bus->ram, "1ST_READ.BIN", 0x10000);
 
-    char buf[512];
+        sh4_set_reg(cpu, 15, 0x8c00d400);
+        sh4_set_pc(cpu, 0xac008300);
+    } else {
+        printf("Loading \'%s\' at 0x8c001000\n", argv[1]);
+
+        // Load test program at 0x8c001000
+        ram_load(bus->ram, argv[1], 0x1000);
+
+        sh4_set_pc(cpu, 0xac001000);
+    }
 
     int open = 1;
 
     while (open) {
-        // dis_state.pc = cpu->pc[0];
-
-        // uint16_t opcode = cpu->bus.read16(cpu->bus.udata, cpu->pc[0]);
-
-        // printf("%s\n", sh4_disassemble(opcode, buf, &dis_state));
-    
         int counter = 750000;
 
         while (counter--)
             sh4_cycle(cpu);
 
-        SDL_UpdateTexture(texture, NULL, bus->holly->buf, 640 * 2);
+        void* display = pvr2_get_display(bus->pvr2);
+
+        SDL_UpdateTexture(texture, NULL, display, 640 * 4);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
 
@@ -93,7 +98,7 @@ int main(int argc, const char* argv[]) {
 
     for (int y = 0; y < 4; y++) {
         for (int x = 0; x < 4; x++) {
-            printf("R%-2u: %08x ", x + (y * 4), sh4_get_reg(cpu, x + (y * 4)));
+            printf("R%-2u: %08x ", x + (y * 4), *sh4_get_reg(cpu, x + (y * 4)));
         }
 
         putchar('\n');
