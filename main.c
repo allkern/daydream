@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "sh4_dis.h"
 #include "sh4.h"
@@ -32,7 +33,7 @@ int main(int argc, const char* argv[]) {
     );
 
     dc_bus_state* bus = dc_bus_create();
-    dc_bus_init(bus);
+    dc_bus_init(bus, "dc_boot.bin", "dc_flash.bin");
 
     sh4_bus cpu_bus = {
         .udata   = bus,
@@ -49,7 +50,7 @@ int main(int argc, const char* argv[]) {
 
     int len = strlen(argv[1]);
 
-    if (!strnicmp(argv[1], "-g", len)) {
+    if (!strncmp(argv[1], "-g", len)) {
         printf("Loading \'%s\' at 0x8c008000...\n", argv[2]);
 
         // Load IP.BIN at 0x8c008000
@@ -59,7 +60,8 @@ int main(int argc, const char* argv[]) {
         ram_load(bus->ram, "1ST_READ.BIN", 0x10000);
 
         sh4_set_reg(cpu, 15, 0x8c00d400);
-        sh4_set_pc(cpu, 0xac008300);
+        // sh4_set_pc(cpu, 0xac008300); // IP.BIN
+        sh4_set_pc(cpu, 0xac010000);
     } else {
         printf("Loading \'%s\' at 0x8c001000\n", argv[1]);
 

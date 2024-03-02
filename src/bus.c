@@ -13,18 +13,22 @@ dc_bus_state* dc_bus_create(void) {
     return malloc(sizeof(dc_bus_state));
 }
 
-void dc_bus_init(dc_bus_state* bus) {
+void dc_bus_init(dc_bus_state* bus, const char* boot, const char* flash) {
+    bus->boot = boot_create();
     bus->cache = cache_create();
-    bus->vram = vram_create();
+    bus->flash = flash_create();
     bus->p4 = p4_create();
-    bus->ram = ram_create();
     bus->pvr2 = pvr2_create();
+    bus->ram = ram_create();
+    bus->vram = vram_create();
 
+    boot_init(bus->boot, boot);
     cache_init(bus->cache, bus->p4);
-    vram_init(bus->vram, 0x800000);
+    flash_init(bus->flash, flash);
     p4_init(bus->p4);
-    ram_init(bus->ram, 0x1000000);
     pvr2_init(bus->pvr2, bus->vram);
+    ram_init(bus->ram, 0x1000000);
+    vram_init(bus->vram, 0x800000);
 }
 
 #define MAP_READ(s, l, h, d) \
@@ -45,6 +49,8 @@ uint32_t dc_bus_read8(dc_bus_state* bus, uint32_t addr) {
     addr &= 0x1fffffff;
 
     MAP_READ_U(8, 0x1C000000, 0x7FFFFFFF, cache);
+    MAP_READ(8, 0x00000000, 0x001FFFFF, boot);
+    MAP_READ(8, 0x00200000, 0x0021FFFF, flash);
     MAP_READ(8, 0x005F8000, 0x005F8FFF, pvr2);
     MAP_READ(8, 0x04000000, 0x07FFFFFF, vram);
     MAP_READ(8, 0x0C000000, 0x0FFFFFFF, ram);
@@ -61,7 +67,9 @@ uint32_t dc_bus_read16(dc_bus_state* bus, uint32_t addr) {
     addr &= 0x1fffffff;
 
     MAP_READ_U(16, 0x1C000000, 0x7FFFFFFF, cache);
-    MAP_READ(32, 0x005F8000, 0x005F8FFF, pvr2);
+    MAP_READ(16, 0x00000000, 0x001FFFFF, boot);
+    MAP_READ(16, 0x00200000, 0x0021FFFF, flash);
+    MAP_READ(16, 0x005F8000, 0x005F8FFF, pvr2);
     MAP_READ(16, 0x04000000, 0x07FFFFFF, vram);
     MAP_READ(16, 0x0C000000, 0x0FFFFFFF, ram);
     MAP_READ(16, 0x1F000000, 0x1FFFFFFF, p4);
@@ -77,6 +85,8 @@ uint32_t dc_bus_read32(dc_bus_state* bus, uint32_t addr) {
     addr &= 0x1fffffff;
 
     MAP_READ_U(32, 0x1C000000, 0x7FFFFFFF, cache);
+    MAP_READ(32, 0x00000000, 0x001FFFFF, boot);
+    MAP_READ(32, 0x00200000, 0x0021FFFF, flash);
     MAP_READ(32, 0x005F8000, 0x005F8FFF, pvr2);
     MAP_READ(32, 0x04000000, 0x07FFFFFF, vram);
     MAP_READ(32, 0x0C000000, 0x0FFFFFFF, ram);
@@ -93,6 +103,8 @@ void dc_bus_write8(dc_bus_state* bus, uint32_t addr, uint32_t data) {
     addr &= 0x1fffffff;
 
     MAP_WRITE_U(8, 0x1C000000, 0x7FFFFFFF, cache);
+    MAP_WRITE(8, 0x00000000, 0x001FFFFF, boot);
+    MAP_WRITE(8, 0x00200000, 0x0021FFFF, flash);
     MAP_WRITE(8, 0x005F8000, 0x005F8FFF, pvr2);
     MAP_WRITE(8, 0x04000000, 0x07FFFFFF, vram);
     MAP_WRITE(8, 0x0C000000, 0x0FFFFFFF, ram);
@@ -107,6 +119,8 @@ void dc_bus_write16(dc_bus_state* bus, uint32_t addr, uint32_t data) {
     addr &= 0x1fffffff;
 
     MAP_WRITE_U(16, 0x1C000000, 0x7FFFFFFF, cache);
+    MAP_WRITE(16, 0x00000000, 0x001FFFFF, boot);
+    MAP_WRITE(16, 0x00200000, 0x0021FFFF, flash);
     MAP_WRITE(16, 0x005F8000, 0x005F8FFF, pvr2);
     MAP_WRITE(16, 0x04000000, 0x07FFFFFF, vram);
     MAP_WRITE(16, 0x0C000000, 0x0FFFFFFF, ram);
@@ -121,6 +135,8 @@ void dc_bus_write32(dc_bus_state* bus, uint32_t addr, uint32_t data) {
     addr &= 0x1fffffff;
 
     MAP_WRITE_U(32, 0x1C000000, 0x7FFFFFFF, cache);
+    MAP_WRITE(32, 0x00000000, 0x001FFFFF, boot);
+    MAP_WRITE(32, 0x00200000, 0x0021FFFF, flash);
     MAP_WRITE(32, 0x005F8000, 0x005F8FFF, pvr2);
     MAP_WRITE(32, 0x04000000, 0x07FFFFFF, vram);
     MAP_WRITE(32, 0x0C000000, 0x0FFFFFFF, ram);

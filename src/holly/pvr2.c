@@ -30,13 +30,13 @@ uint32_t pvr2_read32(void* udata, uint32_t addr) {
 }
 
 uint32_t pvr2_read16(void* udata, uint32_t addr) {
-    pvr2_state* pvr2 = udata;
+    pvr2_state* pvr2 = udata; (void)pvr2;
 
     return 0;
 }
 
 uint32_t pvr2_read8(void* udata, uint32_t addr) {
-    pvr2_state* pvr2 = udata;
+    pvr2_state* pvr2 = udata; (void)pvr2;
 
     return 0;
 }
@@ -122,11 +122,11 @@ void pvr2_write32(void* udata, uint32_t addr, uint32_t data) {
 }
 
 void pvr2_write16(void* udata, uint32_t addr, uint32_t data) {
-    pvr2_state* pvr2 = udata;
+    pvr2_state* pvr2 = udata; (void)pvr2;
 }
 
 void pvr2_write8(void* udata, uint32_t addr, uint32_t data) {
-    pvr2_state* pvr2 = udata;
+    pvr2_state* pvr2 = udata; (void)pvr2;
 }
 
 void* pvr2_get_display(pvr2_state* pvr2) {
