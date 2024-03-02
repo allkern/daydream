@@ -1,6 +1,10 @@
 #ifndef VRAM_H
 #define VRAM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -17,5 +21,9 @@ void vram_write32(void* udata, uint32_t addr, uint32_t data);
 void vram_write16(void* udata, uint32_t addr, uint32_t data);
 void vram_write8(void* udata, uint32_t addr, uint32_t data);
 void vram_destroy(vram_state* vram);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

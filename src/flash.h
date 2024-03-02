@@ -1,6 +1,10 @@
 #ifndef FLASH_H
 #define FLASH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -17,5 +21,9 @@ void flash_write32(void* udata, uint32_t addr, uint32_t data);
 void flash_write16(void* udata, uint32_t addr, uint32_t data);
 void flash_write8(void* udata, uint32_t addr, uint32_t data);
 void flash_destroy(flash_state* flash);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -106,11 +106,15 @@ void sh4_op_movlp(sh4_state* cpu) {
         *rm += 4;
 }
 void sh4_op_movbm(sh4_state* cpu) { puts("movbm unimplemented"); exit(1); }
-void sh4_op_movwm(sh4_state* cpu) { puts("movwm unimplemented"); exit(1); }
-void sh4_op_movlm(sh4_state* cpu) {
-    int n = N;
+void sh4_op_movwm(sh4_state* cpu) {
+    uint32_t* rn = sh4_get_reg(cpu, N);
 
-    uint32_t* rn = sh4_get_reg(cpu, n);
+    *rn -= 2;
+
+    bus_write16(cpu, *rn, R(M));
+}
+void sh4_op_movlm(sh4_state* cpu) {
+    uint32_t* rn = sh4_get_reg(cpu, N);
 
     *rn -= 4;
 
@@ -162,7 +166,11 @@ void sh4_op_movt(sh4_state* cpu) {
     R(N) = (uint32_t)cpu->sr.t;
 }
 void sh4_op_swapb(sh4_state* cpu) { puts("swapb unimplemented"); exit(1); }
-void sh4_op_swapw(sh4_state* cpu) { puts("swapw unimplemented"); exit(1); }
+void sh4_op_swapw(sh4_state* cpu) {
+    uint32_t rm = R(M);
+
+    R(N) = ((rm >> 8) | (rm << 8)) & 0xffff;
+}
 void sh4_op_xtrct(sh4_state* cpu) { puts("xtrct unimplemented"); exit(1); }
 void sh4_op_add(sh4_state* cpu) {
     R(N) += R(M);
@@ -199,7 +207,9 @@ void sh4_op_cmpge(sh4_state* cpu) {
     cpu->sr.t = ((int32_t)R(N)) >= ((int32_t)R(M));
 }
 void sh4_op_cmphi(sh4_state* cpu) { puts("cmphi unimplemented"); exit(1); }
-void sh4_op_cmpgt(sh4_state* cpu) { puts("cmpgt unimplemented"); exit(1); }
+void sh4_op_cmpgt(sh4_state* cpu) {
+    cpu->sr.t = (long)R(N) > (long)R(M);
+}
 void sh4_op_cmppl(sh4_state* cpu) { puts("cmppl unimplemented"); exit(1); }
 void sh4_op_cmppz(sh4_state* cpu) {
     cpu->sr.t = ((int32_t)R(N)) >= 0;
@@ -297,7 +307,9 @@ void sh4_op_mull(sh4_state* cpu) {
 void sh4_op_muls(sh4_state* cpu) {
     cpu->macl = SE16(R(N)) * SE16(R(M));
 }
-void sh4_op_mulu(sh4_state* cpu) { puts("mulu unimplemented"); exit(1); }
+void sh4_op_mulu(sh4_state* cpu) {
+    cpu->macl = (R(N) & 0xffff) * (R(M) & 0xffff);
+}
 void sh4_op_neg(sh4_state* cpu) {
     sh4_set_reg(cpu, N, 0 - R(M));
 }
@@ -328,7 +340,9 @@ void sh4_op_andi(sh4_state* cpu) {
     R(0) &= D8;
 }
 void sh4_op_andm(sh4_state* cpu) { puts("andm unimplemented"); exit(1); }
-void sh4_op_not(sh4_state* cpu) { puts("not unimplemented"); exit(1); }
+void sh4_op_not(sh4_state* cpu) {
+    R(N) = ~R(M);
+}
 void sh4_op_or(sh4_state* cpu) {
     R(N) |= R(M);
 }
@@ -368,7 +382,13 @@ void sh4_op_rotcr(sh4_state* cpu) {
     cpu->sr.t = lsb;
 }
 void sh4_op_rotl(sh4_state* cpu) { puts("rotl unimplemented"); exit(1); }
-void sh4_op_rotr(sh4_state* cpu) { puts("rotr unimplemented"); exit(1); }
+void sh4_op_rotr(sh4_state* cpu) {
+    uint32_t* rn = sh4_get_reg(cpu, N);
+
+    cpu->sr.t = *rn & 1;
+
+    *rn = (*rn >> 1) | (cpu->sr.t << 31);
+}
 void sh4_op_shad(sh4_state* cpu) { puts("shad unimplemented"); exit(1); }
 void sh4_op_shal(sh4_state* cpu) { puts("shal unimplemented"); exit(1); }
 void sh4_op_shar(sh4_state* cpu) {
@@ -578,16 +598,22 @@ void sh4_op_fldi0(sh4_state* cpu) { puts("fldi0 unimplemented"); exit(1); }
 void sh4_op_fldi1(sh4_state* cpu) { puts("fldi1 unimplemented"); exit(1); }
 void sh4_op_flds(sh4_state* cpu) { puts("flds unimplemented"); exit(1); }
 void sh4_op_fsts(sh4_state* cpu) { puts("fsts unimplemented"); exit(1); }
-void sh4_op_fabs_fr(sh4_state* cpu) { puts("fabs_fr unimplemented"); exit(1); }
+void sh4_op_fabs_fr(sh4_state* cpu) {
+    FR(N).u32 &= 0x7fffffff;
+}
 void sh4_op_fneg_fr(sh4_state* cpu) { puts("fneg_fr unimplemented"); exit(1); }
 void sh4_op_fadd_fr(sh4_state* cpu) {
     FR(N).f += FR(M).f;
 }
-void sh4_op_fsub_fr(sh4_state* cpu) { puts("fsub_fr unimplemented"); exit(1); }
+void sh4_op_fsub_fr(sh4_state* cpu) {
+    FR(N).f -= FR(M).f;
+}
 void sh4_op_fmul_fr(sh4_state* cpu) {
     FR(N).f *= FR(M).f;
 }
-void sh4_op_fmac(sh4_state* cpu) { puts("fmac unimplemented"); exit(1); }
+void sh4_op_fmac(sh4_state* cpu) {
+    FR(N).f += FR(M).f * FR(0).f;
+}
 void sh4_op_fdiv_fr(sh4_state* cpu) {
     FR(N).f /= FR(M).f;
 }

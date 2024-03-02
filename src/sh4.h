@@ -1,6 +1,10 @@
 #ifndef SH4_H
 #define SH4_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 #define SR_T     0x00000001
@@ -352,5 +356,9 @@ void sh4_op_ldsmfpul(sh4_state* cpu);
 void sh4_op_stsmfpul(sh4_state* cpu);
 void sh4_op_frchg(sh4_state* cpu);
 void sh4_op_fschg(sh4_state* cpu);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

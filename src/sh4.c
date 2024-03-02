@@ -9,7 +9,6 @@ sh4_state* sh4_create(void) {
     return malloc(sizeof(sh4_state));
 }
 
-
 void sh4_init(sh4_state* cpu, sh4_bus bus) {
     memset(cpu, 0, sizeof(sh4_state));
 

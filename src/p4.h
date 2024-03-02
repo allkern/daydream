@@ -1,6 +1,10 @@
 #ifndef P4_H
 #define P4_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -131,5 +135,9 @@ void p4_write32(void* udata, uint32_t addr, uint32_t data);
 void p4_write16(void* udata, uint32_t addr, uint32_t data);
 void p4_write8(void* udata, uint32_t addr, uint32_t data);
 void p4_destroy(p4_state* p4);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,6 +1,10 @@
 #ifndef PVR2_H
 #define PVR2_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -164,5 +168,9 @@ void pvr2_write16(void* udata, uint32_t addr, uint32_t data);
 void pvr2_write8(void* udata, uint32_t addr, uint32_t data);
 void* pvr2_get_display(pvr2_state* pvr2);
 void pvr2_destroy(pvr2_state* pvr2);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

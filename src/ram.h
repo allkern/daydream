@@ -1,6 +1,10 @@
 #ifndef RAM_H
 #define RAM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -18,5 +22,9 @@ void ram_write16(void* udata, uint32_t addr, uint32_t data);
 void ram_write8(void* udata, uint32_t addr, uint32_t data);
 void ram_load(ram_state* ram, const char* path, uint32_t addr);
 void ram_destroy(ram_state* ram);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

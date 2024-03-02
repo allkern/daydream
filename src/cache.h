@@ -1,6 +1,10 @@
 #ifndef CACHE_H
 #define CACHE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -20,5 +24,9 @@ void cache_write32(void* udata, uint32_t addr, uint32_t data);
 void cache_write16(void* udata, uint32_t addr, uint32_t data);
 void cache_write8(void* udata, uint32_t addr, uint32_t data);
 void cache_destroy(cache_state* cache);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

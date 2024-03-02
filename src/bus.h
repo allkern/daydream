@@ -1,6 +1,10 @@
 #ifndef BUS_H
 #define BUS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "boot.h"
 #include "cache.h"
 #include "flash.h"
@@ -28,5 +32,9 @@ void dc_bus_write8(dc_bus_state* bus, uint32_t addr, uint32_t data);
 void dc_bus_write16(dc_bus_state* bus, uint32_t addr, uint32_t data);
 void dc_bus_write32(dc_bus_state* bus, uint32_t addr, uint32_t data);
 void dc_bus_destroy(dc_bus_state* bus);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

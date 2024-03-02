@@ -3,11 +3,11 @@ bin/
 build/
 imgui/
 roms/
+scripts/
 SDL2-2.26.5/
 sdl2-win64/
 *.bin
 *.cdi
-*.cpp
 *.exe
 *.ini
 *.pdf
