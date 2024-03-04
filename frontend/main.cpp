@@ -16,10 +16,122 @@
 #include <stdio.h>
 #include <string.h>
 #include <SDL.h>
+#include <SDL_syswm.h>
 #include <string>
 
+#include "sh4_dis.h"
 #include "sh4.h"
 #include "bus.h"
+
+#include "IconsMaterialDesign.h"
+
+#include <dwmapi.h>
+
+namespace ImGui {
+    void VerticalSeparator(float thickness = 1.0f) {
+        ImVec4 separator_color = ImGui::GetStyle().Colors[ImGuiCol_Separator];
+
+        ImDrawList* draw = ImGui::GetWindowDrawList();
+
+        ImGui::SameLine();
+
+        ImVec2 p = ImGui::GetCursorScreenPos();
+
+        draw->AddLine(
+            p,
+            ImVec2(p.x, p.y + GetContentRegionAvail().y),
+            ImGui::GetColorU32(separator_color),
+            thickness
+        );
+    }
+}
+
+static ImVec4 col_mnemonic = ImVec4((181.0 + 30.0) / 255.0, (137.0 + 30.0) / 255.0, 0.0, 1.0);
+static ImVec4 col_invalid = ImVec4(0.35, 0.35, 0.35, 1.0);
+
+void highlight_asm(sh4_state* cpu, bool print_address = true, bool print_opcode = true) {
+    using namespace ImGui;
+
+    sh4d_state dis_state;
+
+    dis_state.print_address = (print_address == true) ? 1 : 0;
+    dis_state.print_opcode = (print_opcode == true) ? 1 : 0;
+
+    char buf[128];
+
+    int count = 32;
+    int offset = count / 2;
+
+    ImDrawList* draw = ImGui::GetWindowDrawList();
+
+    float width = GetContentRegionAvail().x;
+    float height = GetTextLineHeight();
+
+    for (int i = 0; i < count; i++) {
+        ImVec2 p = GetCursorScreenPos();
+
+        if (i == offset)
+            draw->AddRectFilled(p, ImVec2(p.x + width, p.y + height), 0x7f303030, 4.0); // ABGR
+
+        if (dis_state.pc == 0xa0000010)
+            draw->AddRectFilled(p, ImVec2(p.x + width, p.y + height), 0x7f00007f, 4.0);
+
+        if (dis_state.pc == 0xa0000014)
+            draw->AddRectFilled(p, ImVec2(p.x + width, p.y + height), 0x7f00007f, 4.0);
+
+        if (dis_state.pc == 0xa000001e)
+            draw->AddRectFilled(p, ImVec2(p.x + width, p.y + height), 0x7f00007f, 4.0);
+
+        dis_state.pc = cpu->pc[0] + (i << 1) - (offset << 1);
+
+        uint16_t opcode = cpu->bus.read16(cpu->bus.udata, dis_state.pc);
+
+        std::string str = sh4_disassemble(opcode, buf, &dis_state);
+
+        if (dis_state.print_address) {
+            auto p = str.find_first_of(':');
+
+            std::string address = str.substr(0, p);
+
+            str = str.substr(p + 2);
+
+            TextColored(ImVec4(0.75, 0.75, 0.75, 1.0), "%s ", address.c_str());
+
+            float y0 = GetCursorScreenPos().y;
+
+            SameLine(0.0, 4.0);
+
+            float x = GetCursorScreenPos().x;
+            float y1 = GetCursorScreenPos().y;
+        }
+
+        if (dis_state.print_opcode) {
+            auto p = str.find_first_of(' ');
+
+            std::string opcode = str.substr(0, p);
+
+            str = str.substr(p + 1);
+
+            TextColored(ImVec4(0.5, 0.5, 0.5, 1.0), "%s ", opcode.c_str());
+
+            SameLine(0.0, 5.0);
+        }
+
+        {
+            auto p = str.find_first_of(' ');
+
+            std::string opcode = str.substr(0, p);
+
+            str = (p == std::string::npos) ? "" : str.substr(p + 1);
+
+            TextColored(opcode == "<invalid>" ? col_invalid : col_mnemonic, "%s", opcode.c_str());
+
+            SameLine();
+
+            Text(str.c_str());
+        }
+    }
+}
 
 #if !SDL_VERSION_ATLEAST(2,0,17)
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
@@ -65,22 +177,64 @@ int main(int argc, const char* argv[]) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
 
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    // To-do: Move this platform-specific code somewhere else, ASAP!
+    //        Research minimum supported version for dwAttribute 20
 
+    // Set window dark mode and remove icon (Windows-specific)
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    HWND hwnd = wmInfo.info.win.window;
+
+    COLORREF color = 0x00505050;
+
+    DwmSetWindowAttribute(hwnd, 20, &color, sizeof(COLORREF));
+
+    // End platform-specific
+    
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
+
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    style.Alpha            = 1.0f;
+    style.WindowBorderSize = 0.0f;
+    style.WindowRounding   = 8.0f;
+    style.FrameBorderSize  = 0.0f;
+    style.FrameRounding    = 4.0f;
+    style.ChildBorderSize  = 0.0f;
+    style.PopupBorderSize  = 0.0f;
+    style.PopupRounding    = 4.0f;
+    style.FramePadding     = ImVec2(6.0, 6.0);
+    style.Colors[ImGuiCol_Button]        = ImVec4(0.35, 0.35, 0.35, 1.0);
+    style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.40, 0.40, 0.40, 1.0);
+    style.Colors[ImGuiCol_ButtonActive]  = ImVec4(0.45, 0.45, 0.45, 1.0);
+    style.Colors[ImGuiCol_WindowBg]      = ImVec4(0.10, 0.10, 0.10, 0.95);
+    style.Colors[ImGuiCol_FrameBg]       = ImVec4(0.35, 0.35, 0.35, 1.0);
+    style.Colors[ImGuiCol_HeaderHovered] = ImVec4(0.22, 0.22, 0.22, 1.0);
+    style.Colors[ImGuiCol_Header]        = ImVec4(0.28, 0.28, 0.28, 1.0);
+    // style.Colors[ImGuiCol_WindowBg]      = ImVec4(0.17, 0.17, 0.17, 1.0);
+    // style.Colors[ImGuiCol_Button]        = ImVec4(0.17, 0.17, 0.17, 1.0);
+    // style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.22, 0.22, 0.22, 1.0);
+    // style.Colors[ImGuiCol_ButtonActive]  = ImVec4(0.28, 0.28, 0.28, 1.0);
 
     // Setup Platform/Renderer backends
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
 
+    ImGuiIO& io = ImGui::GetIO();
+
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+
     io.Fonts->AddFontDefault();
-    ImFont* small   = io.Fonts->AddFontFromFileTTF(".\\Roboto-Regular.ttf", 11.0f);
-    ImFont* body    = io.Fonts->AddFontFromFileTTF(".\\Roboto-Regular.ttf", 14.0f);
-    ImFont* code    = io.Fonts->AddFontFromFileTTF(".\\RobotoMono-Regular.ttf", 14.0f);
-    ImFont* heading = io.Fonts->AddFontFromFileTTF(".\\Roboto-Regular.ttf", 18.0f);
+
+    static const ImWchar ranges[] = { ICON_MIN_MD, ICON_MAX_16_MD, 0 };
+    ImFont* small   = io.Fonts->AddFontFromFileTTF("Roboto-Regular.ttf", 11.0f);
+    ImFont* body    = io.Fonts->AddFontFromFileTTF("Roboto-Regular.ttf", 14.0f);
+    ImFont* code    = io.Fonts->AddFontFromFileTTF("RobotoMono-Regular.ttf", 18.0f);
+    ImFont* heading = io.Fonts->AddFontFromFileTTF("Roboto-Regular.ttf", 18.0f);
+    ImFont* icons   = io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_MD, 18.0f, nullptr, ranges);
 
     std::string bios_path = ".\\bios";
 
@@ -102,11 +256,6 @@ int main(int argc, const char* argv[]) {
     std::string boot_path = bios_path + "\\dc_boot.bin";
     std::string flash_path = bios_path + "\\dc_flash.bin";
 
-    ImGuiStyle& style = ImGui::GetStyle();
-
-    style.FrameBorderSize = 0;
-    style.WindowBorderSize = 0;
-    
     printf("Initializing Dreamcast with files:\n\tboot: \'%s\'\n\tflash: \'%s\'\n",
         boot_path.c_str(),
         flash_path.c_str()
@@ -174,6 +323,9 @@ int main(int argc, const char* argv[]) {
     bool open = true;
     bool run = false;
     bool bilinear = true;
+    bool sh4_enabled = false;
+    bool print_address = true;
+    bool print_opcode = true;
 
     while (open) {
         using namespace ImGui;
@@ -188,25 +340,28 @@ int main(int argc, const char* argv[]) {
         if (BeginMainMenuBar()) {
             if (BeginMenu("Dreamcast")) {
                 if (MenuItem("Start BIOS")) {
-                    run = true;
+                    if (!sh4_enabled)
+                        run = true;
                 }
                 
                 if (MenuItem("Start IP.BIN")) {
                     sh4_set_pc(cpu, 0xac008300);
 
-                    run = true;
+                    if (!sh4_enabled)
+                        run = true;
                 }
 
                 if (MenuItem("Start 1ST_READ.BIN")) {
                     sh4_set_pc(cpu, 0xac010000);
 
-                    run = true;
+                    if (!sh4_enabled)
+                        run = true;
                 }
 
                 if (MenuItem(run ? "Pause" : "Resume"))
                     run = !run;
 
-                EndMenu();
+                ImGui::EndMenu();
             }
 
             if (BeginMenu("Display")) {
@@ -216,16 +371,68 @@ int main(int argc, const char* argv[]) {
                     SDL_SetTextureScaleMode(texture, (SDL_ScaleMode)bilinear);
                 }
 
-                EndMenu();
+                ImGui::EndMenu();
             }
 
             if (BeginMenu("Debug")) {
-                
+                if (MenuItem(sh4_enabled ? "Hide SH4 debugger" : "Show SH4 debugger")) {
+                    sh4_enabled = !sh4_enabled;
+                }
 
-                EndMenu();
+                ImGui::EndMenu();
             }
 
             EndMainMenuBar();
+        }
+
+        if (sh4_enabled) {
+            if (Begin("SH4", nullptr,
+                ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoDecoration
+            )) {
+                PushFont(icons);
+
+                if (Button(run ? ICON_MD_PAUSE : ICON_MD_PLAY_ARROW, ImVec2(GetContentRegionAvail().x / 8.0, 0.0)))
+                    run = !run;
+
+                SameLine();
+
+                BeginDisabled(run);
+
+                if (Button(ICON_MD_ARROW_FORWARD))
+                    sh4_cycle(cpu);
+
+                EndDisabled();
+
+                // VerticalSeparator();
+
+                SameLine();
+
+                if (Button(ICON_MD_SETTINGS))
+                    OpenPopup("codeview##settings");
+
+                PushFont(body);
+
+                if (BeginPopup("codeview##settings")) {
+                    ImGui::MenuItem("Show address", "", &print_address);
+                    ImGui::MenuItem("Show opcode", "", &print_opcode);
+
+                    EndPopup();
+                }
+
+                PopFont();
+
+                PopFont();
+
+                PushFont(code);
+                BeginChild("codeview");
+
+                highlight_asm(cpu, print_address, print_opcode);
+
+                EndChild();
+                PopFont();
+            } End();
         }
 
         PopFont();
@@ -243,12 +450,12 @@ int main(int argc, const char* argv[]) {
 
             while (counter--)
                 sh4_cycle(cpu);
-
-            void* display = pvr2_get_display(bus->pvr2);
-
-            SDL_UpdateTexture(texture, NULL, display, 640 * 4);
-            SDL_RenderCopy(renderer, texture, NULL, NULL);
         }
+
+        void* display = pvr2_get_display(bus->pvr2);
+
+        SDL_UpdateTexture(texture, NULL, display, 640 * 4);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
 
         ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
 

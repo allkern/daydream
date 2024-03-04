@@ -25,10 +25,12 @@ Set-Location ..
 mkdir -Force -Path bin > $null
 
 c++ -I"`"$($DDREAM_DIR)`"" `
+    -I"`"$($DDREAM_DIR)\frontend`"" `
     -I"`"$($IMGUI_DIR)`"" `
     -I"`"$($IMGUI_DIR)\backends`"" `
     -I"`"$($SDL2_DIR)\include`"" `
     -I"`"$($SDL2_DIR)\include\SDL2`"" `
+    ".\res\*.res" `
     ".\build\*.o" `
     ".\frontend\*.cpp" `
     -o ".\bin\ddream.exe" `
@@ -36,7 +38,7 @@ c++ -I"`"$($DDREAM_DIR)`"" `
     -DREP_COMMIT_HASH="`"$($COMMIT_HASH)`"" `
     -DOS_INFO="`"$($OS_INFO)`"" `
     -L"`"$($SDL2_DIR)\lib`"" `
-    -m64 -lSDL2main -lSDL2 `
+    -m64 -lSDL2main -lSDL2 -ldwmapi `
     -Wall -pedantic -ffast-math -Ofast -g
 
 # gcc -I"`"$($DDREAM_DIR)`"" `
