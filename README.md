@@ -3,7 +3,7 @@
 </p>
 
 # Daydream
-Experimental Sega Dreamcast emulator core library written in C (libdream) and frontend (Daydream)
+Experimental Sega Dreamcast emulation library written in C (named libdream) and frontend (named Daydream)
 
 ![Screenshot 2024-03-05 000900](https://github.com/allkern/daydream/assets/15825466/231acc5e-e267-4a38-8d44-34fe949375c6)
 
