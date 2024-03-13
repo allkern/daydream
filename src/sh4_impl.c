@@ -167,9 +167,12 @@ void sh4_op_movt(sh4_state* cpu) {
 }
 void sh4_op_swapb(sh4_state* cpu) { puts("swapb unimplemented"); exit(1); }
 void sh4_op_swapw(sh4_state* cpu) {
+    // uint32_t rm = R(M);
+
+    // R(N) = ((rm >> 8) | (rm << 8)) & 0xffff;
     uint32_t rm = R(M);
 
-    R(N) = ((rm >> 8) | (rm << 8)) & 0xffff;
+    R(N) = (rm >> 16) | (rm << 16);
 }
 void sh4_op_xtrct(sh4_state* cpu) { puts("xtrct unimplemented"); exit(1); }
 void sh4_op_add(sh4_state* cpu) {

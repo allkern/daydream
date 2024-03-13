@@ -17,7 +17,9 @@ void boot_init(boot_state* boot, const char* path) {
     FILE* file = fopen(path, "rb");
 
     fread(boot->buf, 1, 0x200000, file);
-    fclose(boot->buf);
+    fclose(file);
+
+    uint16_t* buf = (uint16_t*)boot->buf;
 }
 
 uint32_t boot_read32(void* udata, uint32_t addr) {

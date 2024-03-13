@@ -17,7 +17,7 @@ void flash_init(flash_state* flash, const char* path) {
     FILE* file = fopen(path, "rb");
 
     fread(flash->buf, 1, 0x40000, file);
-    fclose(flash->buf);
+    fclose(file);
 }
 
 uint32_t flash_read32(void* udata, uint32_t addr) {

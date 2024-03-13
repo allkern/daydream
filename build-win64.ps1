@@ -16,7 +16,7 @@ gcc -c `
     -I"`"..\$($DDREAM_DIR)`"" `
     "..\src\holly\*.c" `
     "..\src\*.c" `
-    -Ofast -ffast-math -Wno-incompatible-pointer-types
+    -Ofast -ffast-math
 
 Write-Output "done"
 

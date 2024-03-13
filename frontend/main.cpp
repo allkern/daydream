@@ -17,7 +17,9 @@
 #include <string.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
+#include <filesystem>
 #include <string>
+#include <vector>
 
 #include "sh4_dis.h"
 #include "sh4.h"
@@ -26,6 +28,14 @@
 #include "IconsMaterialDesign.h"
 
 #include <dwmapi.h>
+
+std::vector <std::filesystem::path> game_paths;
+
+void scan_games(const char* path) {
+    for (const auto& p : std::filesystem::directory_iterator(path))
+        if (p.is_directory())
+            game_paths.push_back(p);
+}
 
 namespace ImGui {
     void VerticalSeparator(float thickness = 1.0f) {
@@ -46,6 +56,30 @@ namespace ImGui {
     }
 }
 
+void load_game(dc_bus_state* bus, const std::filesystem::path& p) {
+    std::string game_path = p.string();
+
+    if ((game_path.front() == '\"') ^ (game_path.back() == '\"')) {
+        if (game_path.front() == '\"') game_path = game_path.substr(1);
+        if (game_path.back() == '\"') game_path.pop_back();
+    }
+
+    printf("Searching files on \'%s\'\n", game_path.c_str());
+
+    std::string ip_path = game_path + "\\IP.BIN";
+    std::string read_path = game_path + "\\1ST_READ.BIN";
+
+    printf("Loading \'%s\' at 0x8c008000...\n", ip_path.c_str());
+
+    // Load IP.BIN at 0x8c008000
+    ram_load(bus->ram, ip_path.c_str(), 0x8000);
+
+    printf("Loading \'%s\' at 0x8c010000...\n", read_path.c_str());
+
+    // Load 1ST_READ.BIN at 0x8c010000
+    ram_load(bus->ram, read_path.c_str(), 0x10000);
+}
+
 static ImVec4 col_mnemonic = ImVec4((181.0 + 30.0) / 255.0, (137.0 + 30.0) / 255.0, 0.0, 1.0);
 static ImVec4 col_invalid = ImVec4(0.35, 0.35, 0.35, 1.0);
 
@@ -59,7 +93,7 @@ void highlight_asm(sh4_state* cpu, bool print_address = true, bool print_opcode 
 
     char buf[128];
 
-    int count = 32;
+    int count = 24;
     int offset = count / 2;
 
     ImDrawList* draw = ImGui::GetWindowDrawList();
@@ -159,6 +193,27 @@ int main(int argc, const char* argv[]) {
         SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_OPENGL
     );
 
+    printf("Scanning games directory... ");
+
+    scan_games(".\\roms\\");
+
+    printf("done\n");
+
+    // To-do: Move this platform-specific code somewhere else, ASAP!
+    //        Research minimum supported version for dwAttribute 20
+
+    // Set window dark mode and remove icon (Windows-specific)
+    SDL_SysWMinfo wmInfo;
+    SDL_VERSION(&wmInfo.version);
+    SDL_GetWindowWMInfo(window, &wmInfo);
+    HWND hwnd = wmInfo.info.win.window;
+
+    COLORREF color = 0x00000001;
+
+    DwmSetWindowAttribute(hwnd, 20, &color, sizeof(COLORREF));
+
+    // End platform-specific
+
     SDL_Renderer* renderer = SDL_CreateRenderer(
         window,
         -1,
@@ -177,21 +232,6 @@ int main(int argc, const char* argv[]) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-
-    // To-do: Move this platform-specific code somewhere else, ASAP!
-    //        Research minimum supported version for dwAttribute 20
-
-    // Set window dark mode and remove icon (Windows-specific)
-    SDL_SysWMinfo wmInfo;
-    SDL_VERSION(&wmInfo.version);
-    SDL_GetWindowWMInfo(window, &wmInfo);
-    HWND hwnd = wmInfo.info.win.window;
-
-    COLORREF color = 0x00505050;
-
-    DwmSetWindowAttribute(hwnd, 20, &color, sizeof(COLORREF));
-
-    // End platform-specific
     
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
@@ -326,6 +366,8 @@ int main(int argc, const char* argv[]) {
     bool sh4_enabled = false;
     bool print_address = true;
     bool print_opcode = true;
+    bool show_gamelist = true;
+    float menubar_height = 0;
 
     while (open) {
         using namespace ImGui;
@@ -338,10 +380,14 @@ int main(int argc, const char* argv[]) {
         PushFont(body);
 
         if (BeginMainMenuBar()) {
+            menubar_height = GetWindowHeight();
+
             if (BeginMenu("Dreamcast")) {
                 if (MenuItem("Start BIOS")) {
                     if (!sh4_enabled)
                         run = true;
+
+                    show_gamelist = false;
                 }
                 
                 if (MenuItem("Start IP.BIN")) {
@@ -349,6 +395,8 @@ int main(int argc, const char* argv[]) {
 
                     if (!sh4_enabled)
                         run = true;
+
+                    show_gamelist = false;
                 }
 
                 if (MenuItem("Start 1ST_READ.BIN")) {
@@ -356,6 +404,13 @@ int main(int argc, const char* argv[]) {
 
                     if (!sh4_enabled)
                         run = true;
+
+                    show_gamelist = false;
+                }
+
+                if (MenuItem(show_gamelist ? "Hide game list" : "Show game list")) {
+                    run = false;
+                    show_gamelist = !show_gamelist;
                 }
 
                 if (MenuItem(run ? "Pause" : "Resume"))
@@ -385,12 +440,50 @@ int main(int argc, const char* argv[]) {
             EndMainMenuBar();
         }
 
+        if (show_gamelist) {
+            PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0);
+
+            SetNextWindowPos(ImVec2(0, menubar_height));
+            SetNextWindowSize(ImVec2(640*1.5, 480*1.5-menubar_height));
+            if (Begin("gamelist", nullptr,
+                ImGuiWindowFlags_NoCollapse |
+                ImGuiWindowFlags_NoResize |
+                ImGuiWindowFlags_NoDecoration
+            )) {
+                if (BeginTable("gamelist#table", 3, ImGuiTableFlags_RowBg)) {
+                    for (const auto& p : game_paths) {
+                        TableNextRow();
+
+                        TableSetColumnIndex(0);
+
+                        if (Selectable(p.stem().string().c_str(), false, ImGuiSelectableFlags_SpanAllColumns)) {
+                            load_game(bus, p);
+                        }
+
+                        TableNextColumn();
+
+                        Text("CUE");
+
+                        TableNextColumn();
+
+                        Text("Game");
+                    }
+
+                    EndTable();
+                }
+            } End();
+
+            PopStyleVar();
+        }
+
         if (sh4_enabled) {
+            SetNextWindowSize(ImVec2(700, 580));
             if (Begin("SH4", nullptr,
                 ImGuiWindowFlags_NoCollapse |
                 ImGuiWindowFlags_NoResize |
                 ImGuiWindowFlags_NoDecoration
             )) {
+                BeginChild("##codeviewmain", ImVec2(350, 0));
                 PushFont(icons);
 
                 if (Button(run ? ICON_MD_PAUSE : ICON_MD_PLAY_ARROW, ImVec2(GetContentRegionAvail().x / 8.0, 0.0)))
@@ -409,7 +502,7 @@ int main(int argc, const char* argv[]) {
 
                 SameLine();
 
-                if (Button(ICON_MD_SETTINGS))
+                if (Button(ICON_MD_APP_SETTINGS_ALT))
                     OpenPopup("codeview##settings");
 
                 PushFont(body);
@@ -432,6 +525,27 @@ int main(int argc, const char* argv[]) {
 
                 EndChild();
                 PopFont();
+                EndChild(); SameLine();
+
+                BeginChild("registers");
+
+                PushFont(code);
+
+                for (int y = 0; y < 4; y++) {
+                    for (int x = 0; x < 4; x++) {
+                        int i = x + (y * 4);
+
+                        Text("%08x", *sh4_get_reg(cpu, i));
+
+                        SameLine();
+                    }
+
+                    NewLine();
+                }
+
+                PopFont();
+
+                EndChild();
             } End();
         }
 
