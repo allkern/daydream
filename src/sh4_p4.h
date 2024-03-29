@@ -1,5 +1,5 @@
-#ifndef P4_H
-#define P4_H
+#ifndef SH4_P4_H
+#define SH4_P4_H
 
 #ifdef __cplusplus
 extern "C" {

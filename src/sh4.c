@@ -16,8 +16,94 @@ void sh4_init(sh4_state* cpu, sh4_bus bus) {
     cpu->pc[0] = 0xa0000000;
     cpu->pc[1] = 0xa0000002;
     cpu->bus = bus;
+    cpu->p4 = p4_create();
+    cpu->cache = cache_create();
+
+    p4_init(cpu->p4);
+    cache_init(cpu->cache, cpu->p4);
 
     cpu->fpscr.u32 = 0x00040001;
+}
+
+uint32_t bus_read8(sh4_state* cpu, uint32_t addr) {
+    uint32_t phys = addr & 0x1fffffff;
+
+    int p   = (addr & 0x80000000) != 0;
+    int alt = (addr & 0x40000000) != 0;
+    int nc  = (addr & 0x20000000) != 0;
+
+    if ((phys >= 0x1c000000) || ((addr & 0x60000000) == 0x60000000))
+        return sh4_ibus_read8(cpu, addr);
+
+    return cpu->bus.read8(cpu->bus.udata, phys);
+}
+
+uint32_t bus_read16(sh4_state* cpu, uint32_t addr) {
+    uint32_t phys = addr & 0x1fffffff;
+
+    int p   = (addr & 0x80000000) != 0;
+    int alt = (addr & 0x40000000) != 0;
+    int nc  = (addr & 0x20000000) != 0;
+
+    if ((phys >= 0x1c000000) || ((addr & 0x60000000) == 0x60000000))
+        return sh4_ibus_read16(cpu, addr);
+
+    return cpu->bus.read16(cpu->bus.udata, phys);
+}
+
+uint32_t bus_read32(sh4_state* cpu, uint32_t addr) {
+    if (addr == 0xa05f6900)
+        return 8;
+
+    uint32_t phys = addr & 0x1fffffff;
+
+    int p   = (addr & 0x80000000) != 0;
+    int alt = (addr & 0x40000000) != 0;
+    int nc  = (addr & 0x20000000) != 0;
+
+    if ((phys >= 0x1c000000) || ((addr & 0x60000000) == 0x60000000))
+        return sh4_ibus_read32(cpu, addr);
+
+    return cpu->bus.read32(cpu->bus.udata, phys);
+}
+
+void bus_write8(sh4_state* cpu, uint32_t addr, uint32_t data) {
+    uint32_t phys = addr & 0x1fffffff;
+
+    int p   = (addr & 0x80000000) != 0;
+    int alt = (addr & 0x40000000) != 0;
+    int nc  = (addr & 0x20000000) != 0;
+
+    if ((phys >= 0x1c000000) || ((addr & 0x60000000) == 0x60000000))
+        { sh4_ibus_write8(cpu, addr, data); return; }
+
+    cpu->bus.write8(cpu->bus.udata, phys, data);
+}
+
+void bus_write16(sh4_state* cpu, uint32_t addr, uint32_t data) {
+    uint32_t phys = addr & 0x1fffffff;
+
+    int p   = (addr & 0x80000000) != 0;
+    int alt = (addr & 0x40000000) != 0;
+    int nc  = (addr & 0x20000000) != 0;
+
+    if ((phys >= 0x1c000000) || ((addr & 0x60000000) == 0x60000000))
+        { sh4_ibus_write16(cpu, addr, data); return; }
+
+    cpu->bus.write16(cpu->bus.udata, phys, data);
+}
+
+void bus_write32(sh4_state* cpu, uint32_t addr, uint32_t data) {
+    uint32_t phys = addr & 0x1fffffff;
+
+    int p   = (addr & 0x80000000) != 0;
+    int alt = (addr & 0x40000000) != 0;
+    int nc  = (addr & 0x20000000) != 0;
+
+    if ((phys >= 0x1c000000) || ((addr & 0x60000000) == 0x60000000))
+        { sh4_ibus_write32(cpu, addr, data); return; }
+
+    cpu->bus.write32(cpu->bus.udata, phys, data);
 }
 
 #define ROTL16(v, r) ((((v) << r) | ((v) >> (16 - r))) & 0xffff)
@@ -300,7 +386,7 @@ void sh4_exec(sh4_state* cpu) {
         case 0xf0fd: sh4_op_fsca(cpu); return;
     }
 
-    printf("Unimplemented opcode %04x\n", cpu->opcode);
+    printf("Unimplemented opcode %04x at %08x (%08x)\n", cpu->opcode, cpu->pc[0], cpu->pc[1]);
 
     exit(1);
 }
@@ -308,7 +394,7 @@ void sh4_exec(sh4_state* cpu) {
 #undef ROTL16
 
 void sh4_cycle(sh4_state* cpu) {
-    cpu->opcode = cpu->bus.read16(cpu->bus.udata, cpu->pc[0]);
+    cpu->opcode = bus_read16(cpu, cpu->pc[0]);
 
     cpu->pc[0] = cpu->pc[1];
     cpu->pc[1] = cpu->pc[0] + 2;
@@ -317,6 +403,7 @@ void sh4_cycle(sh4_state* cpu) {
 }
 
 void sh4_destroy(sh4_state* cpu) {
+    p4_destroy(cpu->p4);
     free(cpu);
 }
 

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "p4.h"
+#include "sh4_p4.h"
 
 #define ROTL24(v, r) ((((v) << r) | ((v) >> (24 - r))) & 0xffffff)
 

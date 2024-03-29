@@ -16,6 +16,9 @@ Remove-Item "sdl2-win64.zip"
 
 git clone "https://github.com/ocornut/imgui"
 
+$IMGUI_DIR = ".\imgui"
+$SDL2_DIR = ".\SDL2-2.26.5\x86_64-w64-mingw32"
+
 if (!(Test-Path -Path "build")) {
     Write-Host -NoNewline "Building ImGui... "
 

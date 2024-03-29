@@ -1,5 +1,5 @@
-#ifndef CACHE_H
-#define CACHE_H
+#ifndef SH4_CACHE_H
+#define SH4_CACHE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,7 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "p4.h"
+#include "sh4_p4.h"
 
 typedef struct {
     uint8_t* buf;

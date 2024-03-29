@@ -6,18 +6,14 @@ extern "C" {
 #endif
 
 #include "boot.h"
-#include "cache.h"
 #include "flash.h"
-#include "p4.h"
 #include "ram.h"
 #include "vram.h"
 #include "holly/pvr2.h"
 
 typedef struct {
     boot_state* boot;
-    cache_state* cache;
     flash_state* flash;
-    p4_state* p4;
     ram_state* ram;
     vram_state* vram;
     pvr2_state* pvr2;

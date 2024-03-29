@@ -22,33 +22,6 @@
 
 #define ERROR_EXIT(msg) { puts(msg); exit(1); }
 
-uint32_t bus_read8(sh4_state* cpu, uint32_t addr) {
-    return cpu->bus.read8(cpu->bus.udata, addr);
-}
-
-uint32_t bus_read16(sh4_state* cpu, uint32_t addr) {
-    return cpu->bus.read16(cpu->bus.udata, addr);
-}
-
-uint32_t bus_read32(sh4_state* cpu, uint32_t addr) {
-    if (addr == 0xa05f6900)
-        return 8;
-
-    return cpu->bus.read32(cpu->bus.udata, addr);
-}
-
-void bus_write8(sh4_state* cpu, uint32_t addr, uint32_t data) {
-    cpu->bus.write8(cpu->bus.udata, addr, data);
-}
-
-void bus_write16(sh4_state* cpu, uint32_t addr, uint32_t data) {
-    cpu->bus.write16(cpu->bus.udata, addr, data);
-}
-
-void bus_write32(sh4_state* cpu, uint32_t addr, uint32_t data) {
-    cpu->bus.write32(cpu->bus.udata, addr, data);
-}
-
 void sh4_op_mov(sh4_state* cpu) {
     R(N) = R(M);
 }

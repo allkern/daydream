@@ -7,6 +7,9 @@ extern "C" {
 
 #include <stdint.h>
 
+#include "sh4_p4.h"
+#include "sh4_cache.h"
+
 #define SR_T     0x00000001
 #define SR_S     0x00000002
 #define SR_IMASK 0x000000f0
@@ -109,6 +112,9 @@ typedef struct {
             float f[16];
         } xmtrx;
     } fb[2];
+
+    p4_state* p4;
+    cache_state* cache;
 } sh4_state;
 
 sh4_state* sh4_create(void);
@@ -119,6 +125,12 @@ uint32_t* sh4_get_reg(sh4_state* cpu, int index);
 void sh4_set_reg(sh4_state* cpu, int index, uint32_t value);
 void sh4_set_pc(sh4_state* cpu, uint32_t pc);
 void sh4_set_pc_delayed(sh4_state* cpu, uint32_t pc);
+uint32_t sh4_ibus_read8(sh4_state* cpu, uint32_t addr);
+uint32_t sh4_ibus_read16(sh4_state* cpu, uint32_t addr);
+uint32_t sh4_ibus_read32(sh4_state* cpu, uint32_t addr);
+void sh4_ibus_write8(sh4_state* cpu, uint32_t addr, uint32_t data);
+void sh4_ibus_write16(sh4_state* cpu, uint32_t addr, uint32_t data);
+void sh4_ibus_write32(sh4_state* cpu, uint32_t addr, uint32_t data);
 
 void sh4_op_mov(sh4_state* cpu);
 void sh4_op_movi(sh4_state* cpu);
@@ -356,6 +368,14 @@ void sh4_op_ldsmfpul(sh4_state* cpu);
 void sh4_op_stsmfpul(sh4_state* cpu);
 void sh4_op_frchg(sh4_state* cpu);
 void sh4_op_fschg(sh4_state* cpu);
+
+
+uint32_t bus_read8(sh4_state* cpu, uint32_t addr);
+uint32_t bus_read16(sh4_state* cpu, uint32_t addr);
+uint32_t bus_read32(sh4_state* cpu, uint32_t addr);
+void bus_write8(sh4_state* cpu, uint32_t addr, uint32_t data);
+void bus_write16(sh4_state* cpu, uint32_t addr, uint32_t data);
+void bus_write32(sh4_state* cpu, uint32_t addr, uint32_t data);
 
 #ifdef __cplusplus
 }

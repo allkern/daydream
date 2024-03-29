@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#include "cache.h"
+#include "sh4_cache.h"
 
 int cache_get_addr(cache_state* cache, uint32_t* addr) {
     // ORA
