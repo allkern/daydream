@@ -54,6 +54,12 @@ void ram_write8(void* udata, uint32_t addr, uint32_t data) {
 void ram_load(ram_state* ram, const char* path, uint32_t addr) {
     FILE* file = fopen(path, "rb");
 
+    if (!file) {
+        printf("Couldn't open file \'%s\'\n", path);
+
+        return;
+    }
+
     fseek(file, 0, SEEK_END);
 
     size_t size = ftell(file);

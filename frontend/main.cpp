@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <SDL.h>
-#include <SDL_syswm.h>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -27,7 +26,10 @@
 
 #include "IconsMaterialDesign.h"
 
+#ifdef _WIN32
+#include <SDL_syswm.h>
 #include <dwmapi.h>
+#endif
 
 std::vector <std::filesystem::path> game_paths;
 
@@ -66,8 +68,8 @@ void load_game(dc_bus_state* bus, const std::filesystem::path& p) {
 
     printf("Searching files on \'%s\'\n", game_path.c_str());
 
-    std::string ip_path = game_path + "\\IP.BIN";
-    std::string read_path = game_path + "\\1ST_READ.BIN";
+    std::string ip_path = game_path + "/IP.BIN";
+    std::string read_path = game_path + "/1ST_READ.BIN";
 
     printf("Loading \'%s\' at 0x8c008000...\n", ip_path.c_str());
 
@@ -118,7 +120,7 @@ void highlight_asm(sh4_state* cpu, bool print_address = true, bool print_opcode 
 
         dis_state.pc = cpu->pc[0] + (i << 1) - (offset << 1);
 
-        uint16_t opcode = cpu->bus.read16(cpu->bus.udata, dis_state.pc);
+        uint16_t opcode = bus_read16(cpu, dis_state.pc); // cpu->bus.read16(cpu->bus.udata, dis_state.pc);
 
         std::string str = sh4_disassemble(opcode, buf, &dis_state);
 
@@ -195,7 +197,7 @@ int main(int argc, const char* argv[]) {
 
     printf("Scanning games directory... ");
 
-    scan_games(".\\roms\\");
+    scan_games("./roms/");
 
     printf("done\n");
 
@@ -203,6 +205,8 @@ int main(int argc, const char* argv[]) {
     //        Research minimum supported version for dwAttribute 20
 
     // Set window dark mode and remove icon (Windows-specific)
+
+#ifdef _WIN32
     SDL_SysWMinfo wmInfo;
     SDL_VERSION(&wmInfo.version);
     SDL_GetWindowWMInfo(window, &wmInfo);
@@ -211,6 +215,7 @@ int main(int argc, const char* argv[]) {
     COLORREF color = 0x00000001;
 
     DwmSetWindowAttribute(hwnd, 20, &color, sizeof(COLORREF));
+#endif
 
     // End platform-specific
 
@@ -276,7 +281,7 @@ int main(int argc, const char* argv[]) {
     ImFont* heading = io.Fonts->AddFontFromFileTTF("Roboto-Regular.ttf", 18.0f);
     ImFont* icons   = io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_MD, 18.0f, nullptr, ranges);
 
-    std::string bios_path = ".\\bios";
+    std::string bios_path = "./bios";
 
     for (int i = 0; i < argc; i++) {
         if (std::string(argv[i]) == "-b") {
@@ -293,8 +298,8 @@ int main(int argc, const char* argv[]) {
 
     printf("Searching BIOS and flash files on \'%s\'\n", bios_path.c_str());
 
-    std::string boot_path = bios_path + "\\dc_boot.bin";
-    std::string flash_path = bios_path + "\\dc_flash.bin";
+    std::string boot_path = bios_path + "/dc_boot.bin";
+    std::string flash_path = bios_path + "/dc_flash.bin";
 
     printf("Initializing Dreamcast with files:\n\tboot: \'%s\'\n\tflash: \'%s\'\n",
         boot_path.c_str(),
@@ -332,20 +337,8 @@ int main(int argc, const char* argv[]) {
         if (game_path.back() == '\"') game_path.pop_back();
     }
 
-    printf("Searching files on \'%s\'\n", game_path.c_str());
-
-    std::string ip_path = game_path + "\\IP.BIN";
-    std::string read_path = game_path + "\\1ST_READ.BIN";
-
-    printf("Loading \'%s\' at 0x8c008000...\n", ip_path.c_str());
-
-    // Load IP.BIN at 0x8c008000
-    ram_load(bus->ram, ip_path.c_str(), 0x8000);
-
-    printf("Loading \'%s\' at 0x8c010000...\n", read_path.c_str());
-
-    // Load 1ST_READ.BIN at 0x8c010000
-    ram_load(bus->ram, read_path.c_str(), 0x10000);
+    if (game_path.size())
+        load_game(bus, game_path);
 
     for (int i = 0; i < argc; i++) {
         if (std::string(argv[i]) == "-x") {
